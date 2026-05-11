@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WOLFFY: Bring Me To Life (A2)</title>
+    <!-- Fonts: Gothic / Impact / Tech -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Oswald:wght@400;600;700&family=Outfit:wght@300;400;600;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gothic: {
+                            black: '#030305',    /* Deepest Black */
+                            panel: '#0f172a',    /* Slate / Storm Blue */
+                            gray: '#334155',     /* Rain Gray */
+                            cyan: '#00f3ff',     /* Electric Life Cyan */
+                            red: '#ff003c',      /* Emergency Red */
+                            white: '#f8fafc'     /* Ghost White */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        display: ['Cinzel', 'serif'],
+                        impact: ['Oswald', 'sans-serif'],
+                        mono: ['"Share Tech Mono"', 'monospace']
+                    },
+                    boxShadow: {
+                        'cyan-glow': '0 0 20px rgba(0,243,255,0.4), inset 0 0 10px rgba(0,243,255,0.1)',
+                        'red-glow': '0 0 20px rgba(255,0,60,0.5), inset 0 0 10px rgba(255,0,60,0.2)',
+                        'panel': '0 15px 35px rgba(0,0,0,0.8), inset 0 1px 3px rgba(255,255,255,0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base & Resets */
+        body { background-color: #030305; color: #f8fafc; overflow: hidden; font-family: 'Outfit', sans-serif; user-select: none; }
+        .allow-select { user-select: text; }
+
+        /* Gothic Rain Background */
+        .rain-container { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; background: radial-gradient(circle at 50% 0%, #0f172a 0%, #030305 70%); }
+        .rain { position: absolute; width: 1px; height: 100px; background: linear-gradient(to bottom, transparent, rgba(0,243,255,0.4)); animation: fall linear infinite; }
+        @keyframes fall { 0% { transform: translateY(-100px); } 100% { transform: translateY(110vh); } }
+
+        /* Record Player Animations */
+        .vinyl-spin { animation: spin 4s linear infinite; }
+        .vinyl-paused { animation-play-state: paused; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Slide Navigation */
+        .slide { display: none; opacity: 0; width: 100%; min-height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .slide.active { display: flex; animation: stormFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .slide::before, .slide::after { content: ''; margin: auto; }
+        .slide > * { flex-shrink: 0; max-width: 100%; z-index: 20; }
+        @keyframes stormFade { 
+            0% { opacity: 0; transform: scale(0.97) translateY(20px); filter: brightness(2) contrast(1.5); } 
+            100% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1) contrast(1); } 
+        }
+
+        /* Glass Panels - Shattered Edge effect simulated with borders */
+        .glass-panel { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(0, 243, 255, 0.1); border-top: 2px solid rgba(0,243,255,0.3); border-radius: 4px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); }
+        
+        /* Buttons */
+        .chunky-btn { background: #0f172a; border: 1px solid #334155; border-bottom: 3px solid #030305; transition: all 0.1s; border-radius: 4px; color: #f8fafc;}
+        .chunky-btn:active { transform: translateY(2px); border-bottom: 1px solid #030305; }
+        .chunky-btn:hover:not(:disabled) { border-color: #00f3ff; box-shadow: 0 0 10px rgba(0,243,255,0.3); color: #00f3ff;}
+        .chunky-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .mcq-btn { transition: all 0.2s; border: 1px solid #334155; border-left: 4px solid #334155; background: rgba(15,23,42,0.8); }
+        .mcq-btn:hover { border-left-color: #00f3ff; background: rgba(0, 243, 255, 0.05); transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,243,255,0.1); }
+
+        .lyric-highlight { color: #00f3ff; font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; border-bottom: 2px solid rgba(0,243,255,0.5); transition: all 0.3s; padding: 0 6px; }
+        .lyric-highlight:hover { background: rgba(0, 243, 255, 0.2); text-shadow: 0 0 15px rgba(0, 243, 255, 0.9); color: #fff; border-color: #fff;}
+
+        /* Shattered Shards (Vocab & Minigame) */
+        .shard-card { background: linear-gradient(135deg, #0f172a 0%, #030305 100%); color: #fff; border-radius: 2px; border: 1px solid #334155; border-left: 2px solid #00f3ff; box-shadow: 5px 5px 15px rgba(0,0,0,0.5); transition: all 0.3s; cursor: pointer; display: flex; align-items: center; padding: 15px 20px; gap: 15px; position: relative; clip-path: polygon(0 0, 100% 0, 95% 100%, 0 95%);}
+        .shard-card:hover { transform: translateX(5px) scale(1.02); border-color: #00f3ff; box-shadow: 0 0 20px rgba(0,243,255,0.2); }
+        .shard-icon { font-size: 2rem; width: 40px; text-align: center; filter: drop-shadow(0 0 5px rgba(0,243,255,0.5));}
+        .shard-text { font-family: 'Cinzel', serif; font-weight: 900; font-size: 1.25rem; text-transform: uppercase; letter-spacing: 2px; }
+        .shard-status { margin-left: auto; color: #64748b; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; font-weight: bold; }
+        .shard-card.revealed .shard-status { color: #00f3ff; text-shadow: 0 0 5px rgba(0,243,255,0.5); }
+
+        /* The Defibrillator (Grammar Tuner) */
+        .toggle-switch { width: 140px; height: 50px; background: #030305; border-radius: 4px; position: relative; cursor: pointer; box-shadow: inset 0 5px 15px rgba(0,0,0,0.8); border: 2px solid #334155; transition: border-color 0.3s;}
+        .toggle-knob { width: 40px; height: 40px; background: #334155; border: 2px solid #94a3b8; border-radius: 4px; position: absolute; left: 3px; top: 3px; box-shadow: 0 0 10px rgba(0,0,0,0.5); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff;}
+        .toggle-switch.active { border-color: #ff003c; box-shadow: inset 0 5px 15px rgba(0,0,0,0.8), 0 0 20px rgba(255,0,60,0.3); }
+        .toggle-switch.active .toggle-knob { transform: translateX(90px); background: #ff003c; border-color: #fff; box-shadow: 0 0 15px rgba(255,0,60,0.8); }
+
+        /* Broken Glass Sentence Builder */
+        .glass-blank { display: inline-block; min-width: 80px; height: 35px; border-bottom: 2px dashed #334155; margin: 0 6px; vertical-align: middle; text-align: center; font-family: 'Oswald', sans-serif; font-weight: bold; color: #64748b; cursor: pointer; transition: 0.3s; }
+        .glass-blank.filled { border-bottom: 2px solid #00f3ff; color: #00f3ff; text-shadow: 0 0 10px rgba(0,243,255,0.5); }
+        .glass-piece { background: #0f172a; color: #fff; padding: 10px 20px; border: 1px solid #334155; cursor: pointer; transition: all 0.2s; font-weight: 700; font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; clip-path: polygon(5% 0, 100% 5%, 95% 100%, 0 95%);}
+        .glass-piece:hover { background: #00f3ff; color: #030305; border-color: #00f3ff; transform: scale(1.05); box-shadow: 0 0 15px rgba(0,243,255,0.4); }
+        .glass-piece:active { transform: scale(0.95); }
+        .glass-piece.used { opacity: 0; pointer-events: none; transform: scale(0.5); }
+
+        /* Memory Game Cards */
+        .memory-card { height: 110px; perspective: 1000px; cursor: pointer; width: 100%; }
+        .memory-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s; transform-style: preserve-3d; pointer-events: none; }
+        .memory-card.flipped .memory-card-inner { transform: rotateY(180deg); }
+        .memory-card.matched .memory-card-back { background: #00f3ff !important; color: #030305 !important; border-color: #00f3ff !important; box-shadow: 0 0 15px rgba(0,243,255,0.5);}
+        .memory-card-front, .memory-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: bold; border: 1px solid #334155; }
+        .memory-card-front { background: #0f172a; font-size: 2.5rem; color: #334155; }
+        .memory-card-front::after { content: '⚡'; }
+        .memory-card-back { background: #030305; color: #00f3ff; transform: rotateY(180deg); font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px;}
+
+        /* Heartbeat ECG Footer */
+        .ecg-path { stroke: rgba(0,243,255,0.3); stroke-width: 2; fill: none; transition: all 0.3s; stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: dash 3s linear infinite; }
+        @keyframes dash { to { stroke-dashoffset: 0; } }
+        .ecg-active { stroke: #00f3ff; filter: drop-shadow(0 0 5px rgba(0,243,255,0.8)); stroke-width: 3; }
+        .ecg-danger { stroke: #ff003c; filter: drop-shadow(0 0 5px rgba(255,0,60,0.8)); stroke-width: 3; animation: dashFast 1s linear infinite;}
+        @keyframes dashFast { to { stroke-dashoffset: 0; } }
+
+        .shake { animation: shake 0.4s both; border-color: #ff003c !important; color: #ff003c !important; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+
+        .confetti { position: absolute; width: 6px; height: 16px; opacity: 0; z-index: 10000; pointer-events: none; border-radius: 2px; }
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        
+        /* Compact Typography */
+        h1.compact-title { font-size: 2.25rem; line-height: 1.1; margin-bottom: 0.75rem; letter-spacing: 0.05em; font-family: 'Cinzel', serif;}
+        @media (min-width: 768px) { h1.compact-title { font-size: 3.5rem; margin-bottom: 1.5rem; } }
+    </style>
+</head>
+<body class="flex flex-col h-screen w-screen relative">
+
+    <div class="rain-container" id="rain-layer"></div>
+
+    <!-- ================= MAIN PANEL ================= -->
+    <main class="flex-1 flex flex-col relative z-10 w-full max-w-[1400px] mx-auto p-2 lg:p-4 pb-[110px]">
+        <div class="flex-1 rounded-sm bg-[#030305]/80 border border-gothic-gray overflow-y-auto hide-scroll flex flex-col allow-select shadow-[0_10px_30px_rgba(0,0,0,0.9)] relative" id="slides-container">
+            
+            <!-- WATERMARK -->
+            <div class="absolute bottom-4 right-6 z-0 text-white/5 font-black font-impact text-5xl md:text-7xl tracking-[0.2em] pointer-events-none uppercase">
+                WOLFFY A2
+            </div>
+
+            <!-- SLIDE 01: INTRO -->
+            <section class="slide active">
+                <div class="flex justify-between items-start mb-6 w-full max-w-4xl mx-auto z-20">
+                    <div class="text-center w-full">
+                        <h2 class="font-bold text-gothic-cyan tracking-[0.3em] uppercase text-xs mb-3 bg-gothic-cyan/10 border border-gothic-cyan/30 inline-block px-4 py-1 font-mono">Masterclass • Volume A2</h2>
+                        <h1 class="text-5xl md:text-7xl lg:text-8xl font-black font-display leading-tight text-white mb-2 uppercase tracking-widest drop-shadow-lg">Bring Me To<br><span class="text-gothic-cyan drop-shadow-[0_0_15px_rgba(0,243,255,0.5)]">Life</span></h1>
+                        <p class="text-lg md:text-xl text-gray-400 font-bold tracking-widest uppercase font-mono">Evanescence</p>
+                    </div>
+                </div>
+                
+                <div class="border-y border-white/10 py-5 my-4 w-full max-w-3xl mx-auto z-20 glass-panel rounded p-6">
+                    <p class="font-mono text-sm md:text-base text-gray-300 font-medium mb-3">> LEVEL_ <span class="text-white font-bold">A2 (Pre-Intermediate)</span></p>
+                    <p class="font-mono text-sm md:text-base text-gray-300 font-medium mb-3">> GRAMMAR_ <span class="text-gothic-cyan font-bold">Imperatives & Object Pronouns</span></p>
+                    <p class="font-mono text-sm md:text-base text-gray-300 font-medium">> THEME_ <span class="text-white font-bold">Numbness vs Feeling Alive 🌧️</span></p>
+                </div>
+
+                <div class="bg-gothic-panel p-4 rounded border border-gothic-gray w-full max-w-3xl mx-auto text-center mt-4 z-20">
+                    <p class="text-gothic-cyan font-bold text-xs mb-1 uppercase tracking-widest font-mono">System Instructions:</p>
+                    <p class="text-sm md:text-base text-gray-300">Navigate using the bottom monitor. <strong class="text-white">Double-click</strong> any english word to trigger the Smart Dict!</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 02: COVER ART -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 02 • The Record</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase tracking-widest">Fallen (2003)</h1>
+                <div class="w-full max-w-sm rounded overflow-hidden shadow-[0_0_30px_rgba(0,243,255,0.2)] border-2 border-gothic-gray bg-black flex items-center justify-center z-20 mx-auto transition-transform duration-700 hover:scale-105 aspect-square">
+                    <img src="https://upload.wikimedia.org/wikipedia/en/2/25/Evanescence_-_Fallen.png" alt="Fallen Cover" class="w-full h-full object-cover opacity-90 grayscale hover:grayscale-0 transition-all duration-1000">
+                </div>
+            </section>
+
+            <!-- SLIDE 03: VIBE CHECK -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 03 • Warm Up</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Vibe Check</h1>
+                <p class="text-lg md:text-2xl font-bold text-white mb-8 text-center z-20 font-impact tracking-wide">What is the best way to <span class="text-gothic-cyan border-b-2 border-gothic-cyan pb-1">wake you up</span> in the morning?</p>
+                
+                <div class="space-y-4 w-full max-w-3xl mx-auto options-group z-20" data-correct="any">
+                    <button class="w-full text-left glass-panel p-5 text-base md:text-lg font-bold hover:border-gothic-cyan mcq-btn flex items-center gap-5" onclick="selectMCQ(this, 'correct', 'hub-track3')">
+                        <div class="w-10 h-10 bg-gothic-black rounded flex items-center justify-center text-xl shrink-0 border border-gothic-gray">☕</div> A strong cup of coffee.
+                    </button>
+                    <button class="w-full text-left glass-panel p-5 text-base md:text-lg font-bold hover:border-gothic-cyan mcq-btn flex items-center gap-5" onclick="selectMCQ(this, 'correct', 'hub-track3')">
+                        <div class="w-10 h-10 bg-gothic-black rounded flex items-center justify-center text-xl shrink-0 border border-gothic-gray">⏰</div> Multiple loud alarms.
+                    </button>
+                    <button class="w-full text-left glass-panel p-5 text-base md:text-lg font-bold hover:border-gothic-cyan mcq-btn flex items-center gap-5" onclick="selectMCQ(this, 'correct', 'hub-track3')">
+                        <div class="w-10 h-10 bg-gothic-black rounded flex items-center justify-center text-xl shrink-0 border border-gothic-gray">☀️</div> Natural sunlight from the window.
+                    </button>
+                </div>
+                <div class="hidden mt-6 p-5 border-l-4 border-gothic-cyan bg-gothic-cyan/10 w-full max-w-3xl mx-auto z-20" id="hub-track3">
+                    <p class="text-gothic-cyan text-[10px] mb-2 uppercase tracking-widest font-bold font-mono">Speaking Starter</p>
+                    <p class="text-white text-lg md:text-xl font-bold font-impact tracking-wide">"The best way to wake me up is..."</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 04: THE STORY -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 04 • Context</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">The Meaning</h1>
+                <div class="glass-panel p-8 md:p-12 text-center shadow-2xl relative w-full max-w-3xl mx-auto z-20 border-t-4 border-t-gothic-cyan">
+                    <p class="text-xl md:text-2xl font-bold leading-relaxed text-white mb-6 font-sans">The singer feels completely <strong class="text-gothic-cyan">frozen</strong> and <strong class="text-gothic-cyan">asleep</strong> inside.</p>
+                    <p class="text-base md:text-lg text-gray-300 font-medium bg-gothic-black p-5 border border-gothic-gray inline-block font-mono">She is asking someone to rescue her and "bring her to life" so she can feel emotions again.</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 05: HORIZONTAL VOCABULARY 1 -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 05 • Vocabulary</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">The Shadows</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-6 z-20 text-center font-mono">Click the shards to read the dark words.</p>
+                
+                <div class="flex flex-col gap-4 w-full max-w-3xl mx-auto z-20">
+                    <div class="shard-card" onclick="revealShard(this, 'Dark', 'With no light. Black.', 'Are you afraid of the dark?', 1)">
+                        <div class="shard-icon">🌑</div>
+                        <div class="shard-text">Word 1</div>
+                        <div class="shard-status">[DECODE]</div>
+                    </div>
+                    <div class="shard-card" onclick="revealShard(this, 'Inside', 'In the inner part of something.', 'Do you prefer to stay inside or go outside?', 1)">
+                        <div class="shard-icon">📦</div>
+                        <div class="shard-text">Word 2</div>
+                        <div class="shard-status">[DECODE]</div>
+                    </div>
+                    <div class="shard-card" onclick="revealShard(this, 'Blood', 'The red liquid inside your body.', 'Can you look at blood?', 1)">
+                        <div class="shard-icon">🩸</div>
+                        <div class="shard-text">Word 3</div>
+                        <div class="shard-status">[DECODE]</div>
+                    </div>
+                    <div class="shard-card" onclick="revealShard(this, 'Nothing', 'Not anything. Zero.', 'What do you do when you have nothing to do?', 1)">
+                        <div class="shard-icon">🕳️</div>
+                        <div class="shard-text">Word 4</div>
+                        <div class="shard-status">[DECODE]</div>
+                    </div>
+                </div>
+
+                <div id="shard-info-1" class="hidden mt-6 p-5 glass-panel w-full max-w-3xl mx-auto text-left shadow-lg z-20 border-l-4 border-l-gothic-cyan">
+                    <h3 id="s-title-1" class="text-2xl font-black font-display text-gothic-cyan mb-2 uppercase tracking-widest">Word</h3>
+                    <p id="s-def-1" class="text-white text-base mb-3 font-sans">Definition</p>
+                    <p class="text-gray-400 text-sm font-bold font-mono">> <span id="s-q-1" class="text-white">Question</span></p>
+                </div>
+            </section>
+
+            <!-- SLIDE 06: HORIZONTAL VOCABULARY 2 -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 06 • Vocabulary</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">The Rescue</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-6 z-20 text-center font-mono">Click the shards to read the action words.</p>
+                
+                <div class="flex flex-col gap-4 w-full max-w-3xl mx-auto z-20">
+                    <div class="shard-card" style="border-left-color: #ff003c;" onclick="revealShard(this, 'Wake', 'To stop sleeping.', 'What time do you usually wake up?', 2, '#ff003c')">
+                        <div class="shard-icon">👀</div>
+                        <div class="shard-text">Word 5</div>
+                        <div class="shard-status">[DECODE]</div>
+                    </div>
+                    <div class="shard-card" style="border-left-color: #ff003c;" onclick="revealShard(this, 'Save', 'To rescue someone from danger.', 'Who is someone that saves lives?', 2, '#ff003c')">
+                        <div class="shard-icon">🦸</div>
+                        <div class="shard-text">Word 6</div>
+                        <div class="shard-status">[DECODE]</div>
+                    </div>
+                    <div class="shard-card" style="border-left-color: #ff003c;" onclick="revealShard(this, 'Call', 'To say a name loudly, or use a phone.', 'Do you prefer to call or text?', 2, '#ff003c')">
+                        <div class="shard-icon">📞</div>
+                        <div class="shard-text">Word 7</div>
+                        <div class="shard-status">[DECODE]</div>
+                    </div>
+                    <div class="shard-card" style="border-left-color: #ff003c;" onclick="revealShard(this, 'Bring', 'To take something/someone to a place.', 'Do you bring food to parties?', 2, '#ff003c')">
+                        <div class="shard-icon">🤲</div>
+                        <div class="shard-text">Word 8</div>
+                        <div class="shard-status">[DECODE]</div>
+                    </div>
+                </div>
+
+                <div id="shard-info-2" class="hidden mt-6 p-5 glass-panel w-full max-w-3xl mx-auto text-left shadow-lg z-20 border-l-4 border-l-gothic-red">
+                    <h3 id="s-title-2" class="text-2xl font-black font-display text-gothic-red mb-2 uppercase tracking-widest">Word</h3>
+                    <p id="s-def-2" class="text-white text-base mb-3 font-sans">Definition</p>
+                    <p class="text-gray-400 text-sm font-bold font-mono">> <span id="s-q-2" class="text-white">Question</span></p>
+                </div>
+            </section>
+
+            <!-- SLIDE 07: PRE-LISTENING -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 07 • System Check</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">The Setup</h1>
+                <div class="glass-panel p-8 md:p-12 text-center max-w-3xl w-full relative z-20 shadow-2xl border-t-4 border-t-gothic-cyan">
+                    <p class="text-xl md:text-2xl font-bold leading-relaxed text-white mb-6">In the music video, the singer is sleepwalking.</p>
+                    <p class="text-base md:text-lg text-gothic-cyan font-mono bg-gothic-black p-4 border border-gothic-gray inline-block">Pay attention: She climbs out of the window. <br>What happens at the end of the video?</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 08: THE VIDEO -->
+            <section class="slide h-full w-full">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 08 • Playing</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Official Video</h1>
+                <div class="w-full max-w-4xl mx-auto overflow-hidden border-2 border-gothic-gray bg-black shadow-cyan-glow relative aspect-video z-20">
+                    <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/3YxaaGgTQYM?start=55&rel=0" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </section>
+
+            <!-- SLIDE 09: LISTENING CHECK -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 09 • Quiz</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Visual Check</h1>
+                <p class="text-lg md:text-2xl font-bold text-white mb-8 text-center z-20 font-impact tracking-wide">What happens when she is hanging from the building?</p>
+                
+                <div class="flex flex-col md:flex-row justify-center gap-5 z-20 w-full max-w-3xl mx-auto options-group">
+                    <button class="w-full md:w-1/2 glass-panel p-6 text-base md:text-xl font-bold hover:border-gothic-cyan transition-colors font-impact tracking-wide mcq-btn uppercase" onclick="selectMCQ(this, 'wrong')">
+                        🦅 She flies away like a bird.
+                    </button>
+                    <button class="w-full md:w-1/2 glass-panel p-6 text-base md:text-xl font-bold hover:border-gothic-cyan transition-colors font-impact tracking-wide mcq-btn uppercase" onclick="selectMCQ(this, 'correct', 'listen-hub')">
+                        🖐️ A man tries to save her, but she falls.
+                    </button>
+                </div>
+                <div id="listen-hub" class="hidden mt-8 p-5 border-l-4 border-gothic-cyan bg-gothic-cyan/10 font-bold text-white w-full max-w-3xl mx-auto text-center text-sm md:text-lg z-20 shadow-md font-mono">
+                    > Correct! He holds her hand, but she falls and wakes up in her bed.
+                </div>
+            </section>
+
+            <!-- SLIDE 10: LYRICS 1 -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 10 • Reading</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">The Lyrics I</h1>
+                <p class="text-sm text-gray-400 mb-6 z-20 text-center font-mono">Click on the <span class="text-gothic-cyan font-bold">cyan words</span> for Insights!</p>
+                
+                <div class="w-full max-w-3xl mx-auto flex-1 glass-panel p-8 md:p-12 overflow-y-auto text-center shadow-xl z-20 flex flex-col justify-center border-l-4 border-l-gothic-cyan">
+                    <div class="space-y-6 text-xl md:text-3xl font-black font-impact text-white leading-tight uppercase tracking-wider">
+                        <p>How can you <span class="lyric-highlight" onclick="openLyricInsight('see')">see into my eyes</span> like open doors?</p>
+                        <p>Leading you down into my core</p>
+                        <p>Where I've become so numb</p>
+                        <p><span class="lyric-highlight" onclick="openLyricInsight('without')">Without a soul</span></p>
+                        <p>My spirit's sleeping somewhere cold</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 11: LYRICS 2 -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 11 • Reading</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">The Chorus</h1>
+                <div class="w-full max-w-3xl mx-auto flex-1 glass-panel p-8 md:p-12 overflow-y-auto text-center shadow-xl z-20 flex flex-col justify-center border-l-4 border-l-gothic-red">
+                    <div class="space-y-6 text-2xl md:text-4xl font-black font-impact text-white leading-tight uppercase tracking-wider">
+                        <p class="text-gothic-red">(Wake me up)</p>
+                        <p><span class="lyric-highlight" onclick="openLyricInsight('wake')">Wake me up</span> inside</p>
+                        <p class="text-gothic-red">(I can't wake up)</p>
+                        <p>Wake me up inside</p>
+                        <p><span class="lyric-highlight" onclick="openLyricInsight('save')">Save me</span></p>
+                        <p><span class="lyric-highlight" onclick="openLyricInsight('call')">Call my name</span> and save me from the dark</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 12: GRAMMAR INTRO (IMPERATIVES) -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 12 • Grammar</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Imperatives</h1>
+                <p class="text-base md:text-xl font-bold text-gray-300 mb-8 text-center z-20">We use Imperatives to give <span class="text-gothic-cyan">Commands</span>, <span class="text-gothic-cyan">Warnings</span>, or ask for <span class="text-gothic-cyan">Help</span>.</p>
+                
+                <div class="bg-gothic-black p-8 md:p-10 border border-gothic-gray relative w-full max-w-3xl mx-auto z-20 flex flex-col items-center shadow-panel">
+                    <div class="text-6xl mb-6">⚠️</div>
+                    <p class="text-2xl md:text-4xl font-black text-white font-impact uppercase tracking-wider mb-6">Golden Rule:</p>
+                    <p class="text-xl md:text-2xl text-gray-300 font-medium text-center">In English, a command has <strong class="text-gothic-red">NO SUBJECT</strong> (No "You", "I", "He").</p>
+                    <div class="mt-8 bg-gothic-panel w-full p-4 border-l-4 border-gothic-red text-left font-mono">
+                        <p class="text-gray-400 line-through">You wake me up.</p>
+                        <p class="text-2xl text-white font-bold mt-2"><span class="text-gothic-red">Wake me up!</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 13: THE DEFIBRILLATOR (SWITCH) -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 13 • Interactive</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">The Defibrillator</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-8 text-center z-20 font-mono">Use the switch to change an Observation into a Command.</p>
+                
+                <div class="glass-panel p-8 md:p-12 w-full max-w-3xl mx-auto z-20 flex flex-col items-center">
+                    
+                    <!-- Display Screen -->
+                    <div class="bg-gothic-black border border-gothic-gray w-full h-32 md:h-40 mb-8 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
+                        
+                        <!-- Observation -->
+                        <div id="text-reality" class="absolute inset-0 flex flex-col items-center justify-center transition-all duration-300">
+                            <p class="text-xl md:text-3xl font-bold font-mono text-gray-400"><span class="text-gray-600 border-b border-gray-600">You save</span> me every day.</p>
+                            <span class="text-[10px] md:text-xs text-gray-500 uppercase tracking-widest mt-4 bg-gothic-panel px-3 py-1 border border-gothic-gray">Observation (Fact)</span>
+                        </div>
+
+                        <!-- Command -->
+                        <div id="text-imagination" class="absolute inset-0 flex flex-col items-center justify-center transition-all duration-300 opacity-0 scale-90 pointer-events-none">
+                            <p class="text-3xl md:text-5xl font-black font-impact text-white uppercase tracking-wider"><span class="text-gothic-red drop-shadow-[0_0_10px_rgba(255,0,60,0.8)]">Save</span> me!</p>
+                            <span class="text-[10px] md:text-xs text-white uppercase tracking-widest mt-4 bg-gothic-red px-3 py-1 font-bold">Emergency Command</span>
+                        </div>
+                    </div>
+
+                    <!-- Fader -->
+                    <div class="w-full flex items-center justify-center gap-4 md:gap-8 font-bold text-gray-500 font-impact text-lg md:text-xl uppercase tracking-wider">
+                        <span>Fact</span>
+                        <div class="toggle-switch" onclick="toggleMachine()">
+                            <div id="machine-knob" class="toggle-knob"><i class="fa-solid fa-bolt"></i></div>
+                        </div>
+                        <span class="text-gothic-red">Command</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 14: DRILL 1 -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 14 • Practice</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Emergency Command</h1>
+                <div class="text-xl md:text-3xl font-black mb-8 glass-panel p-8 text-center text-white w-full max-w-3xl mx-auto z-20 font-impact tracking-wide uppercase">
+                    Your friend is falling. What do you yell?
+                    <br><br>
+                    "<span class="text-gothic-cyan border-b-4 border-gothic-cyan pb-1 px-4">_______</span> my hand!"
+                </div>
+                <div class="grid grid-cols-2 gap-4 w-full max-w-3xl mx-auto options-group z-20 font-impact tracking-wider">
+                    <button class="glass-panel p-5 text-xl md:text-2xl font-black text-gray-300 mcq-btn uppercase" onclick="selectMCQ(this, 'wrong')">You hold</button>
+                    <button class="glass-panel p-5 text-xl md:text-2xl font-black text-gray-300 mcq-btn uppercase" onclick="selectMCQ(this, 'correct', 'hub-dr1')">Hold</button>
+                </div>
+                <div class="hidden mt-6 p-4 bg-gothic-cyan/10 border-l-4 border-gothic-cyan font-bold text-white w-full max-w-3xl mx-auto text-center text-sm md:text-base z-20 font-mono" id="hub-dr1">
+                    > Correct! No subject needed. Just the verb.
+                </div>
+            </section>
+
+            <!-- SLIDE 15: DRILL 2 (NEGATIVE) -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 15 • Practice</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Negative Command</h1>
+                <p class="text-base md:text-lg text-gray-300 mb-6 font-medium text-center z-20">How do we tell someone <strong class="text-gothic-red">NOT</strong> to do something?</p>
+                <div class="text-xl md:text-3xl font-black mb-8 glass-panel p-8 text-center text-white w-full max-w-3xl mx-auto z-20 font-impact tracking-wide uppercase">
+                    "<span class="text-gothic-red border-b-4 border-gothic-red pb-1 px-4">_______</span> let me fall!"
+                </div>
+                <div class="space-y-3 w-full max-w-3xl mx-auto options-group z-20 font-impact tracking-wider">
+                    <button class="w-full text-left glass-panel p-5 text-lg md:text-xl font-black text-gray-300 mcq-btn uppercase" onclick="selectMCQ(this, 'wrong')">A) Not</button>
+                    <button class="w-full text-left glass-panel p-5 text-lg md:text-xl font-black text-gray-300 mcq-btn uppercase" onclick="selectMCQ(this, 'wrong')">B) No</button>
+                    <button class="w-full text-left glass-panel p-5 text-lg md:text-xl font-black text-gray-300 mcq-btn uppercase" onclick="selectMCQ(this, 'correct', 'hub-dr2')">C) Don't</button>
+                </div>
+                <div id="hub-dr2" class="hidden mt-6 p-4 bg-gothic-cyan/10 border-l-4 border-gothic-cyan font-bold text-white text-sm md:text-base text-center w-full max-w-3xl mx-auto z-20 font-mono">
+                    > Correct! We use "Don't" to make a negative command.
+                </div>
+            </section>
+
+            <!-- SLIDE 16: GRAMMAR 2 (OBJECT PRONOUNS) -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 16 • Grammar</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Me vs My</h1>
+                <p class="text-base md:text-lg text-gray-300 mb-8 text-center z-20">In the chorus, she uses both. What is the difference?</p>
+                
+                <div class="flex flex-col md:flex-row gap-6 w-full max-w-4xl mx-auto z-20 font-sans">
+                    <div class="glass-panel p-8 flex-1 border-t-4 border-t-gothic-cyan">
+                        <p class="text-3xl font-black text-white font-impact uppercase tracking-widest mb-2 text-center">ME (Object)</p>
+                        <p class="text-center text-gray-400 mb-6 font-mono text-sm">Receives the action.</p>
+                        <div class="bg-gothic-black p-4 border border-gothic-gray">
+                            <p class="text-xl font-bold text-white text-center">"Save <span class="text-gothic-cyan">me</span>."</p>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-8 flex-1 border-t-4 border-t-gothic-cyan">
+                        <p class="text-3xl font-black text-white font-impact uppercase tracking-widest mb-2 text-center">MY (Possession)</p>
+                        <p class="text-center text-gray-400 mb-6 font-mono text-sm">Followed by a noun (thing).</p>
+                        <div class="bg-gothic-black p-4 border border-gothic-gray">
+                            <p class="text-xl font-bold text-white text-center">"Call <span class="text-gothic-cyan">my</span> name."</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 17: DRILL 3 (ME VS MY) -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 17 • Practice</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Me or My?</h1>
+                <div class="text-xl md:text-3xl font-black mb-6 glass-panel p-8 text-center text-white w-full max-w-3xl mx-auto z-20 font-impact tracking-wide uppercase">
+                    "Look at <span class="text-gothic-cyan border-b-4 border-gothic-cyan pb-1 px-4">_______</span> eyes!"
+                </div>
+                <div class="grid grid-cols-2 gap-4 w-full max-w-3xl mx-auto options-group z-20 font-impact tracking-wider">
+                    <button class="glass-panel p-5 text-xl md:text-2xl font-black text-gray-300 mcq-btn uppercase" onclick="selectMCQ(this, 'wrong')">ME</button>
+                    <button class="glass-panel p-5 text-xl md:text-2xl font-black text-gray-300 mcq-btn uppercase" onclick="selectMCQ(this, 'correct', 'hub-dr3')">MY</button>
+                </div>
+                <div class="hidden mt-6 p-4 bg-gothic-cyan/10 border-l-4 border-gothic-cyan font-bold text-white w-full max-w-3xl mx-auto text-center text-sm md:text-base z-20 font-mono" id="hub-dr3">
+                    > Correct! "Eyes" is a noun, so we use MY.
+                </div>
+            </section>
+
+            <!-- SLIDE 18: SENTENCE BUILDER -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 18 • Minigame</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Shattered Glass</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-8 text-center z-20 font-mono">> Click the shards to build the lyric.</p>
+                
+                <div class="glass-panel p-8 md:p-12 text-center w-full max-w-4xl mx-auto z-20 relative">
+                    <div class="text-xl md:text-3xl font-bold mb-10 text-white flex flex-wrap justify-center items-center gap-y-6 font-impact uppercase tracking-wider">
+                        "<span class="glass-blank" id="t-blank1" onclick="returnGlass(1)"></span> 
+                         <span class="glass-blank" id="t-blank2" onclick="returnGlass(2)"></span> 
+                         <span class="glass-blank" id="t-blank3" onclick="returnGlass(3)"></span> 
+                         <span class="glass-blank" id="t-blank4" onclick="returnGlass(4)"></span>"
+                    </div>
+                    <div class="flex gap-3 md:gap-4 justify-center flex-wrap" id="glass-bank">
+                        <div class="glass-piece text-base md:text-lg" onclick="fillGlass(this, 'inside')">inside</div>
+                        <div class="glass-piece text-base md:text-lg" onclick="fillGlass(this, 'up')">up</div>
+                        <div class="glass-piece text-base md:text-lg" onclick="fillGlass(this, 'Wake')">Wake</div>
+                        <div class="glass-piece text-base md:text-lg" onclick="fillGlass(this, 'me')">me</div>
+                    </div>
+                </div>
+                <div id="glass-hub" class="hidden mt-6 p-4 border-l-4 border-gothic-cyan bg-gothic-cyan/10 font-bold text-white text-sm md:text-base w-full max-w-4xl mx-auto text-center z-20 font-mono">
+                    > PERFECT! "Wake me up inside."
+                </div>
+            </section>
+
+            <!-- SLIDE 19: CATCH THE BUG -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 19 • Fix It</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Catch the Bug</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-8 text-center z-20 font-mono">Click the incorrect word to fix the grammar.</p>
+                
+                <div class="text-2xl md:text-4xl font-black font-display glass-panel p-10 md:p-14 text-center text-white w-full max-w-4xl mx-auto z-20 uppercase tracking-widest">
+                    "I <span id="bug-word" class="cursor-pointer border-b-4 border-dashed border-gothic-red text-gothic-red pb-1 transition-colors hover:bg-gothic-red hover:text-white rounded px-2" onclick="fixBug()">has</span> become so numb."
+                </div>
+                
+                <div id="bug-input-container" class="hidden mt-8 flex-col items-center gap-4 w-full max-w-sm mx-auto z-20">
+                    <div class="flex gap-3 w-full">
+                        <input type="text" id="bug-input" class="flex-1 bg-gothic-black border border-gothic-gray rounded px-4 py-3 text-xl font-bold text-white text-center focus:border-gothic-cyan outline-none uppercase font-mono" placeholder="Type fix">
+                        <button onclick="checkBug()" class="bg-gothic-cyan text-gothic-black font-black px-6 py-3 rounded hover:bg-white transition-colors font-impact tracking-wider text-xl">FIX</button>
+                    </div>
+                </div>
+                
+                <div id="bug-hub" class="hidden mt-6 p-4 border-l-4 border-gothic-cyan bg-gothic-cyan/10 font-bold text-white w-full max-w-4xl mx-auto text-center text-sm md:text-base z-20 font-mono">
+                    > SYSTEM RESTORED: "I HAVE become..."
+                </div>
+            </section>
+
+            <!-- SLIDE 20: THE MISSING PIECES -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 20 • Practice</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Missing Shards</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-8 text-center z-20 font-mono">Fill the blanks to complete the chorus.</p>
+                
+                <div class="text-xl md:text-3xl font-black glass-panel p-8 md:p-12 w-full max-w-4xl mx-auto leading-loose text-center z-20 font-impact tracking-wide uppercase">
+                    "<span id="blank-1" class="border-b-4 border-gothic-gray px-4 text-gothic-gray mx-1">1</span> me up inside<br>
+                    <span id="blank-2" class="border-b-4 border-gothic-gray px-4 text-gothic-gray mx-1">2</span> me<br>
+                    Call <span id="blank-3" class="border-b-4 border-gothic-gray px-4 text-gothic-gray mx-1">3</span> name and save me"
+                </div>
+                
+                <div id="missing-word-bank" class="flex gap-3 md:gap-4 mt-8 justify-center z-20 font-impact tracking-wider">
+                    <button class="missing-btn bg-gothic-black border border-gothic-gray px-6 md:px-8 py-3 text-lg md:text-xl font-bold rounded hover:border-gothic-cyan hover:text-gothic-cyan transition-colors uppercase" onclick="fillMissingWord(this, 'my')">my</button>
+                    <button class="missing-btn bg-gothic-black border border-gothic-gray px-6 md:px-8 py-3 text-lg md:text-xl font-bold rounded hover:border-gothic-cyan hover:text-gothic-cyan transition-colors uppercase" onclick="fillMissingWord(this, 'save')">save</button>
+                    <button class="missing-btn bg-gothic-black border border-gothic-gray px-6 md:px-8 py-3 text-lg md:text-xl font-bold rounded hover:border-gothic-cyan hover:text-gothic-cyan transition-colors uppercase" onclick="fillMissingWord(this, 'wake')">wake</button>
+                </div>
+
+                <div id="missing-hub" class="hidden mt-6 p-4 bg-gothic-cyan/10 border-l-4 border-gothic-cyan font-bold text-white text-sm md:text-base w-full max-w-4xl mx-auto text-center z-20 font-mono">
+                    > Verse restored perfectly.
+                </div>
+            </section>
+
+            <!-- SLIDE 21: BAMBOOZLE -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 21 • Rapid Fire</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Bamboozle Mode</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-8 text-center z-20 font-mono">Answer 2 consecutive True/False questions.</p>
+                
+                <div id="rq1" class="glass-panel border-t-4 border-gothic-cyan p-8 md:p-12 text-center w-full max-w-3xl z-20 mx-auto transition-all">
+                    <p class="font-bold text-2xl md:text-3xl mb-8 text-white font-sans">A command (Imperative) does not use a Subject.</p>
+                    <div class="flex gap-4 justify-center font-impact tracking-wider">
+                        <button onclick="rqCheck(1, true)" class="w-32 bg-gothic-black border border-gothic-gray text-white py-3 rounded font-bold text-xl hover:border-gothic-cyan transition-colors uppercase">True</button>
+                        <button onclick="rqCheck(1, false)" class="w-32 bg-gothic-black border border-gothic-gray text-white py-3 rounded font-bold text-xl hover:border-gothic-cyan transition-colors uppercase">False</button>
+                    </div>
+                </div>
+                <div id="rq2" class="hidden glass-panel border-t-4 border-gothic-cyan p-8 md:p-12 text-center w-full max-w-3xl z-20 mx-auto transition-all">
+                    <p class="font-bold text-2xl md:text-3xl mb-8 text-white font-sans">We say "Save my".</p>
+                    <div class="flex gap-4 justify-center font-impact tracking-wider">
+                        <button onclick="rqCheck(2, false)" class="w-32 bg-gothic-black border border-gothic-gray text-white py-3 rounded font-bold text-xl hover:border-gothic-cyan transition-colors uppercase">True</button>
+                        <button onclick="rqCheck(2, true)" class="w-32 bg-gothic-black border border-gothic-gray text-white py-3 rounded font-bold text-xl hover:border-gothic-cyan transition-colors uppercase">False</button>
+                    </div>
+                </div>
+                <div id="rq-hub" class="hidden mt-8 font-black text-4xl md:text-5xl text-gothic-cyan z-20 text-center text-shadow-cyan font-impact tracking-widest uppercase">🏆 GRAMMAR MASTER!</div>
+            </section>
+
+            <!-- SLIDE 22: ODD ONE OUT -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 22 • Minigame</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Odd One Out</h1>
+                <p class="text-base md:text-lg text-gray-400 mb-8 font-medium text-center z-20 font-mono">Which sentence is <strong class="text-gothic-red">NOT</strong> a command?</p>
+                <div class="grid grid-cols-2 gap-4 md:gap-6 w-full max-w-3xl mx-auto relative z-20 font-impact tracking-wider uppercase">
+                    <button onclick="oddCheck(this, false)" class="glass-panel p-6 md:p-8 font-black text-xl md:text-2xl border border-transparent mcq-btn text-white text-center">Wake up!</button>
+                    <button onclick="oddCheck(this, false)" class="glass-panel p-6 md:p-8 font-black text-xl md:text-2xl border border-transparent mcq-btn text-white text-center">Save me!</button>
+                    <button onclick="oddCheck(this, true)" class="glass-panel p-6 md:p-8 font-black text-xl md:text-2xl border border-transparent mcq-btn text-white text-center">You sleep.</button>
+                    <button onclick="oddCheck(this, false)" class="glass-panel p-6 md:p-8 font-black text-xl md:text-2xl border border-transparent mcq-btn text-white text-center">Call me!</button>
+                </div>
+                <div id="odd-hub" class="hidden mt-8 p-4 border-l-4 border-gothic-cyan bg-gothic-cyan/10 font-bold text-white text-sm md:text-base text-center rounded-r w-full max-w-3xl mx-auto z-20 font-mono">> Correct! "You sleep" is an observation, not a command.</div>
+            </section>
+
+            <!-- SLIDE 23: SPEAKING 1 -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-red tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 23 • Speaking</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Scream Room I</h1>
+                
+                <div class="flex flex-col lg:flex-row gap-6 items-stretch w-full max-w-5xl z-20 mx-auto">
+                    <!-- Question Side -->
+                    <div class="flex-1 glass-panel p-8 md:p-12 flex flex-col justify-center items-center text-center relative border-t-4 border-t-gothic-red">
+                        <div class="w-16 h-16 bg-gothic-black rounded-full flex items-center justify-center border-2 border-gothic-red mb-6 absolute -top-8 shadow-red-glow">
+                            <i class="fa-solid fa-person-falling text-2xl text-gothic-red"></i>
+                        </div>
+                        <p class="text-2xl md:text-4xl font-black text-white leading-tight uppercase font-impact tracking-wider">You are falling from a building. Yell a command!</p>
+                    </div>
+
+                    <!-- Answer Side -->
+                    <div class="flex-1 bg-gothic-black p-8 md:p-12 border-2 border-dashed border-gothic-gray flex flex-col items-center justify-center text-center relative transition-colors duration-500" id="record-panel1">
+                        <span class="text-xs font-bold uppercase tracking-[0.2em] text-gothic-red mb-4 font-mono"><i class="fa-solid fa-eye mr-2"></i> Yell this:</span>
+                        
+                        <div class="glass-panel p-6 rounded w-full mb-8 border border-white/5">
+                            <p class="text-3xl md:text-5xl font-black text-white italic font-impact uppercase tracking-widest">"Save <span class="text-gothic-red">me</span>!"</p>
+                        </div>
+                        
+                        <button id="record-btn1" onclick="startRecord(1)" class="w-20 h-20 rounded-full bg-gothic-black text-gothic-red flex items-center justify-center text-3xl shadow-red-glow transition-all hover:scale-110 mb-3 border-2 border-gothic-red">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <span id="record-text1" class="text-xs font-bold text-gray-400 font-mono uppercase tracking-widest">Click to record</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 24: SPEAKING 2 -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-red tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 24 • Speaking</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Scream Room II</h1>
+                
+                <div class="flex flex-col lg:flex-row gap-6 items-stretch w-full max-w-5xl z-20 mx-auto">
+                    <div class="flex-1 glass-panel p-8 md:p-12 flex flex-col justify-center items-center text-center relative border-t-4 border-t-gothic-red">
+                        <div class="w-16 h-16 bg-gothic-black rounded-full flex items-center justify-center border-2 border-gothic-red mb-6 absolute -top-8 shadow-red-glow">
+                            <i class="fa-solid fa-fire text-2xl text-gothic-red"></i>
+                        </div>
+                        <p class="text-2xl md:text-4xl font-black text-white leading-tight uppercase font-impact tracking-wider">You see someone sleeping in a fire. Yell a command!</p>
+                    </div>
+
+                    <div class="flex-1 bg-gothic-black p-8 md:p-12 border-2 border-dashed border-gothic-gray flex flex-col items-center justify-center text-center relative transition-colors duration-500" id="record-panel2">
+                        <span class="text-xs font-bold uppercase tracking-[0.2em] text-gothic-red mb-4 font-mono"><i class="fa-solid fa-eye mr-2"></i> Yell this:</span>
+                        
+                        <div class="glass-panel p-6 rounded w-full mb-8 border border-white/5">
+                            <p class="text-3xl md:text-5xl font-black text-white italic font-impact uppercase tracking-widest">"<span class="text-gothic-red">Wake up</span>!"</p>
+                        </div>
+                        
+                        <button id="record-btn2" onclick="startRecord(2)" class="w-20 h-20 rounded-full bg-gothic-black text-gothic-red flex items-center justify-center text-3xl shadow-red-glow transition-all hover:scale-110 mb-3 border-2 border-gothic-red">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <span id="record-text2" class="text-xs font-bold text-gray-400 font-mono uppercase tracking-widest">Click to record</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 25: SPEAKING 3 -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-red tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 25 • Speaking</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Wake Up Call</h1>
+                
+                <div class="flex flex-col lg:flex-row gap-6 items-stretch w-full max-w-5xl z-20 mx-auto">
+                    <div class="flex-1 glass-panel p-8 md:p-12 flex flex-col justify-center items-center text-center relative border-t-4 border-t-gothic-red">
+                        <div class="w-16 h-16 bg-gothic-black rounded-full flex items-center justify-center border-2 border-gothic-red mb-6 absolute -top-8 shadow-red-glow">
+                            <i class="fa-solid fa-bed text-2xl text-gothic-red"></i>
+                        </div>
+                        <p class="text-2xl md:text-4xl font-black text-white leading-tight uppercase font-impact tracking-wider">Your friend won't wake up for a concert. Yell a command!</p>
+                    </div>
+
+                    <div class="flex-1 bg-gothic-black p-8 md:p-12 border-2 border-dashed border-gothic-gray flex flex-col items-center justify-center text-center relative transition-colors duration-500" id="record-panel3">
+                        <span class="text-xs font-bold uppercase tracking-[0.2em] text-gothic-red mb-4 font-mono"><i class="fa-solid fa-eye mr-2"></i> Yell this:</span>
+                        
+                        <div class="glass-panel p-6 rounded w-full mb-8 border border-white/5">
+                            <p class="text-3xl md:text-5xl font-black text-white italic font-impact uppercase tracking-widest">"<span class="text-gothic-red">Wake</span> up!"</p>
+                        </div>
+                        
+                        <button id="record-btn3" onclick="startRecord(3)" class="w-20 h-20 rounded-full bg-gothic-black text-gothic-red flex items-center justify-center text-3xl shadow-red-glow transition-all hover:scale-110 mb-3 border-2 border-gothic-red">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <span id="record-text3" class="text-xs font-bold text-gray-400 font-mono uppercase tracking-widest">Click to record</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 26: ROLEPLAY 1 -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 26 • Roleplay</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">The Rescue</h1>
+                <div class="glass-panel p-8 md:p-12 w-full max-w-4xl mx-auto text-center z-20 border-l-4 border-l-gothic-cyan">
+                    <div class="text-5xl mb-6">🌧️</div>
+                    <p class="text-2xl md:text-3xl font-bold text-white mb-8 font-sans">Your friend feels "dead inside" (sad and numb).</p>
+                    <p class="text-lg md:text-xl text-gothic-cyan font-mono bg-gothic-black p-4 border border-gothic-gray inline-block mb-8">What command do you give them to help?</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gothic-black p-4 border border-gothic-gray rounded font-impact uppercase tracking-wider text-xl text-white">"Call me!"</div>
+                        <div class="bg-gothic-black p-4 border border-gothic-gray rounded font-impact uppercase tracking-wider text-xl text-white">"Talk to me!"</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 27: ROLEPLAY 2 -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 27 • Roleplay</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">The Guide</h1>
+                <div class="glass-panel p-8 md:p-12 w-full max-w-4xl mx-auto text-center z-20 border-l-4 border-l-gothic-cyan">
+                    <div class="text-5xl mb-6">🔦</div>
+                    <p class="text-2xl md:text-3xl font-bold text-white mb-8 font-sans">You are guiding a lost person out of the dark.</p>
+                    <p class="text-lg md:text-xl text-gothic-cyan font-mono bg-gothic-black p-4 border border-gothic-gray inline-block mb-8">What command do you give them to keep them safe?</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gothic-black p-4 border border-gothic-gray rounded font-impact uppercase tracking-wider text-xl text-white hover:border-gothic-cyan transition-colors cursor-pointer">"Follow me!"</div>
+                        <div class="bg-gothic-black p-4 border border-gothic-gray rounded font-impact uppercase tracking-wider text-xl text-white hover:border-gothic-cyan transition-colors cursor-pointer">"Trust me!"</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 28: DEEP DIVE 1 -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 28 • Deep Dive</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Discussion</h1>
+                <div class="glass-panel p-10 md:p-16 w-full max-w-4xl mx-auto text-center relative z-20 mt-4 border-t-2 border-t-gothic-cyan">
+                    <span class="text-6xl md:text-8xl text-gothic-cyan absolute top-4 left-6 opacity-20 font-display">"</span>
+                    <p class="text-2xl md:text-4xl font-black text-white leading-relaxed z-10 relative mt-4 font-display uppercase tracking-wide">Without a soul, my spirit's sleeping somewhere cold.</p>
+                    <span class="text-6xl md:text-8xl text-gothic-cyan absolute bottom-0 right-6 opacity-20 font-display">"</span>
+                </div>
+                <div class="mt-8 p-5 bg-gothic-black border border-gothic-gray rounded w-full max-w-4xl mx-auto text-center z-20">
+                    <p class="text-gray-300 text-base md:text-lg font-sans"><strong>Discuss:</strong> Why do people sometimes feel "cold" or "numb" inside? How can friends help them "wake up"?</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 29: DEEP DIVE 2 -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 29 • Deep Dive</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Coming to Life</h1>
+                <div class="glass-panel p-10 md:p-16 w-full max-w-4xl mx-auto text-center relative z-20 mt-4 border-t-2 border-t-gothic-cyan">
+                    <span class="text-6xl md:text-8xl text-gothic-cyan absolute top-4 left-6 opacity-20 font-display">"</span>
+                    <p class="text-2xl md:text-4xl font-black text-white leading-relaxed z-10 relative mt-4 font-display uppercase tracking-wide">Bring me to life.</p>
+                    <span class="text-6xl md:text-8xl text-gothic-cyan absolute bottom-0 right-6 opacity-20 font-display">"</span>
+                </div>
+                <div class="mt-8 p-5 bg-gothic-black border border-gothic-gray rounded w-full max-w-4xl mx-auto text-center z-20">
+                    <p class="text-gray-300 text-base md:text-lg font-sans"><strong>Discuss:</strong> What activity or passion makes YOU feel the most alive? (Music, sports, traveling, art?)</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 30: SONG REVIEW -->
+            <section class="slide">
+                <h2 class="font-bold text-gothic-cyan tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 30 • Review</h2>
+                <h1 class="compact-title font-black text-white z-20 text-center uppercase">Rate the Song</h1>
+                <p class="text-base md:text-lg text-gray-400 mb-10 text-center z-20 font-mono">How many stars do you give "Bring Me To Life"?</p>
+                
+                <div class="flex justify-center gap-3 md:gap-6 w-full max-w-3xl mx-auto mb-8 z-20">
+                    <button onclick="rateSong(this, 1)" class="star-btn text-5xl md:text-6xl opacity-30 hover:opacity-100 transition-all grayscale hover:grayscale-0 drop-shadow-[0_0_10px_rgba(0,243,255,0.8)]">⭐</button>
+                    <button onclick="rateSong(this, 2)" class="star-btn text-5xl md:text-6xl opacity-30 hover:opacity-100 transition-all grayscale hover:grayscale-0 drop-shadow-[0_0_10px_rgba(0,243,255,0.8)]">⭐</button>
+                    <button onclick="rateSong(this, 3)" class="star-btn text-5xl md:text-6xl opacity-30 hover:opacity-100 transition-all grayscale hover:grayscale-0 drop-shadow-[0_0_10px_rgba(0,243,255,0.8)]">⭐</button>
+                    <button onclick="rateSong(this, 4)" class="star-btn text-5xl md:text-6xl opacity-30 hover:opacity-100 transition-all grayscale hover:grayscale-0 drop-shadow-[0_0_10px_rgba(0,243,255,0.8)]">⭐</button>
+                    <button onclick="rateSong(this, 5)" class="star-btn text-5xl md:text-6xl opacity-30 hover:opacity-100 transition-all grayscale hover:grayscale-0 drop-shadow-[0_0_10px_rgba(0,243,255,0.8)]">⭐</button>
+                </div>
+                
+                <div id="review-hub" class="hidden mt-6 p-5 border-l-4 border-gothic-cyan bg-gothic-cyan/10 w-full max-w-3xl mx-auto text-left z-20 rounded-r shadow-md font-mono">
+                    <p class="text-white text-lg font-bold mb-2">You gave it <span id="star-count" class="text-gothic-cyan font-black text-2xl mx-1">X</span> stars!</p>
+                    <p class="text-gray-300 text-sm">"I give this song <span class="text-gothic-cyan">___</span> stars because it is..." (epic, energetic, dark, powerful).</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 31: PLATINUM RECORD -->
+            <section class="slide">
+                <div class="text-center z-20 flex flex-col items-center">
+                    <div class="w-40 h-40 md:w-56 md:h-56 rounded-full bg-gradient-to-tr from-gray-900 to-gray-600 shadow-cyan-glow mb-8 flex items-center justify-center relative border-4 border-gothic-cyan vinyl-spin">
+                        <div class="w-14 h-14 rounded-full bg-gothic-black border-2 border-gothic-cyan flex items-center justify-center z-20"><div class="w-3 h-3 rounded-full bg-white"></div></div>
+                    </div>
+                    <span class="bg-gothic-cyan text-gothic-black font-bold px-4 py-1.5 rounded text-[10px] tracking-widest font-mono uppercase mb-4 shadow-md">MISSION COMPLETE</span>
+                    <h1 class="text-5xl md:text-7xl font-black font-display text-white mb-6 uppercase tracking-widest">Platinum Record</h1>
+                    <p class="text-base md:text-xl font-medium text-gray-400 mb-10 max-w-xl leading-relaxed">You saved them from the dark. You mastered commands. Class dismissed!</p>
+                    <button onclick="goToSlide(0)" class="bg-gothic-black border border-gothic-cyan text-gothic-cyan font-bold font-mono text-sm md:text-base px-10 py-4 rounded hover:bg-gothic-cyan hover:text-black transition-colors uppercase tracking-widest shadow-cyan-glow">Restart Session</button>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ================= FIXED BOTTOM DASHBOARD ================= -->
+    <footer class="fixed bottom-0 left-0 w-full h-[90px] lg:h-[110px] bg-gothic-black border-t border-gothic-gray shadow-[0_-10px_40px_rgba(0,0,0,0.9)] z-50 flex items-center justify-between px-4 lg:px-8">
+        
+        <!-- Left: Mini Tape -->
+        <div class="flex items-center gap-4 w-1/3">
+            <div class="relative w-12 h-12 lg:w-16 lg:h-16 shrink-0">
+                <div id="vinyl-record" class="absolute inset-0 rounded bg-black border border-gothic-cyan flex items-center justify-center overflow-hidden vinyl-spin shadow-cyan-glow">
+                    <img src="https://upload.wikimedia.org/wikipedia/en/2/25/Evanescence_-_Fallen.png" class="w-full h-full object-cover opacity-80 grayscale">
+                </div>
+            </div>
+            <div class="hidden lg:flex flex-col justify-center bg-gothic-panel border border-gothic-gray rounded px-4 py-2 w-48 shadow-inner">
+                <div class="flex justify-between items-center mb-1.5">
+                    <span class="text-gothic-cyan font-mono text-[10px] font-bold tracking-widest uppercase" id="lcd-text">TRK 01</span>
+                    <span class="text-gray-500 font-mono text-[9px]" id="lcd-time">0:00</span>
+                </div>
+                <div class="w-full bg-black h-1.5 rounded-full overflow-hidden border border-gray-800">
+                    <div id="lcd-progress" class="h-full bg-gothic-cyan w-0 transition-all duration-300 shadow-[0_0_5px_#00f3ff]"></div>
+                </div>
+                <p class="text-white font-bold text-[10px] truncate font-sans uppercase mt-1">Bring Me To Life</p>
+            </div>
+        </div>
+
+        <!-- Center: Playback Controls & ECG -->
+        <div class="flex flex-col items-center justify-center gap-1 w-1/3 relative">
+            
+            <div class="absolute -top-10 w-full h-8 overflow-hidden hidden md:block">
+                <svg viewBox="0 0 200 20" class="w-full h-full opacity-50">
+                    <path class="ecg-path ecg-active" d="M 0 10 L 40 10 L 45 5 L 50 15 L 55 10 L 200 10" id="main-ecg"/>
+                </svg>
+            </div>
+
+            <div class="flex items-center gap-4 lg:gap-8 z-10">
+                <button onclick="prevSlide()" id="btn-prev" class="chunky-btn w-10 h-10 lg:w-12 lg:h-12 rounded disabled:opacity-50 flex items-center justify-center text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-backward-step text-sm"></i>
+                </button>
+                
+                <button onclick="togglePlayPause()" class="chunky-btn w-12 h-12 lg:w-14 lg:h-14 rounded flex items-center justify-center border-gothic-cyan text-gothic-cyan shadow-[0_0_15px_rgba(0,243,255,0.15)] bg-black">
+                    <i id="icon-play" class="fa-solid fa-play ml-0.5 hidden text-lg"></i>
+                    <i id="icon-pause" class="fa-solid fa-pause text-lg"></i>
+                </button>
+
+                <button onclick="nextSlide()" id="btn-next" class="chunky-btn w-10 h-10 lg:w-12 lg:h-12 rounded disabled:opacity-50 flex items-center justify-center text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-forward-step text-sm"></i>
+                </button>
+            </div>
+            <span class="text-[8px] lg:text-[9px] text-gray-600 font-mono tracking-widest uppercase font-bold mt-2 z-10">WOLFFY OS v2.0</span>
+        </div>
+
+        <!-- Right: Tools -->
+        <div class="flex items-center justify-end gap-3 w-1/3">
+            <button onclick="toggleWhiteboard()" class="chunky-btn w-10 h-10 lg:w-12 lg:h-12 rounded flex items-center justify-center group" title="Teacher Terminal">
+                <i class="fa-solid fa-terminal text-gray-400 group-hover:text-gothic-cyan text-sm"></i>
+            </button>
+            <button onclick="toggleDictSidebar()" class="chunky-btn w-10 h-10 lg:w-12 lg:h-12 rounded flex items-center justify-center group" title="Smart Dictionary">
+                <i class="fa-solid fa-book text-gray-400 group-hover:text-gothic-cyan text-sm"></i>
+            </button>
+            <button onclick="toggleFullScreen()" class="chunky-btn w-10 h-10 lg:w-12 lg:h-12 rounded hidden md:flex items-center justify-center group" title="Fullscreen">
+                <i class="fa-solid fa-expand text-gray-400 group-hover:text-gothic-cyan text-sm"></i>
+            </button>
+        </div>
+    </footer>
+
+    <!-- ================= SMART DICT (Right Panel) ================= -->
+    <aside id="dictPanel" class="fixed top-0 right-0 h-full w-full md:w-[400px] bg-gothic-black border-l border-gothic-gray text-white z-[60] transform translate-x-full transition-transform duration-500 flex flex-col shadow-[-20px_0_50px_rgba(0,0,0,0.8)] pb-[100px]">
+        <div class="p-6 border-b border-gothic-gray flex justify-between items-center bg-gothic-panel">
+            <h2 class="text-xl lg:text-2xl font-black font-display text-white flex items-center gap-3 uppercase tracking-widest">
+                <i class="fa-solid fa-book text-gothic-cyan"></i> DICTIONARY
+            </h2>
+            <button onclick="toggleDictSidebar(false)" class="text-gray-500 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="p-6 flex-1 overflow-y-auto hide-scroll" id="dict-content">
+            <div class="flex flex-col items-center justify-center h-full text-center opacity-50">
+                <i class="fa-solid fa-arrow-pointer text-4xl mb-6 text-gothic-cyan"></i>
+                <p class="text-sm font-sans font-bold">Double-click any English word to translate.</p>
+                <input type="text" class="mt-8 bg-black border border-gothic-gray rounded px-4 py-3 w-full text-center outline-none focus:border-gothic-cyan text-white font-mono text-sm" placeholder="> Type word + Enter" onkeypress="if(event.key === 'Enter') fetchDict(this.value)">
+            </div>
+        </div>
+    </aside>
+
+    <!-- ================= TEACHER TOOLS (Left Panel) ================= -->
+    <aside id="whiteboardPanel" class="fixed top-0 left-0 h-full w-full md:w-[450px] bg-gothic-black border-r border-gothic-gray text-white z-[60] transform -translate-x-full transition-transform duration-500 flex flex-col shadow-[20px_0_50px_rgba(0,0,0,0.8)] pb-[100px]">
+        <div class="p-6 border-b border-gothic-gray flex justify-between items-center bg-gothic-panel">
+            <h2 class="text-xl lg:text-2xl font-black font-display text-gray-400 uppercase tracking-widest">Teacher Terminal</h2>
+            <button onclick="toggleWhiteboard(false)" class="text-gray-500 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="p-6 border-b border-gothic-gray bg-black">
+            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-3 font-mono">> Praise Drops</span>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="triggerPraise('ROCK ON! 🤘', 'Flawless execution.')" class="border border-gothic-cyan text-gothic-cyan font-bold py-2.5 rounded text-xs hover:bg-gothic-cyan hover:text-black transition-colors font-mono">ROCK ON!</button>
+                <button onclick="triggerPraise('AMAZING! ✨', 'Target neutralized.')" class="border border-white text-white font-bold py-2.5 rounded text-xs hover:bg-white hover:text-black transition-colors font-mono">AMAZING!</button>
+            </div>
+        </div>
+
+        <div class="flex-1 p-6 bg-gothic-black">
+            <textarea id="teacher-notepad" class="w-full h-full bg-transparent text-gray-300 text-base font-mono outline-none resize-none leading-relaxed placeholder:text-gray-700" placeholder="> Awaiting input... write notes here..."></textarea>
+        </div>
+    </aside>
+
+    <!-- ================= PRAISE OVERLAY ================= -->
+    <div id="praise-overlay" class="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300 bg-black/95 backdrop-blur-sm">
+        <div id="praise-card" class="bg-gothic-panel border-2 border-gothic-cyan p-12 md:p-20 rounded-lg text-center transform scale-50 transition-all duration-500 shadow-[0_0_50px_rgba(0,243,255,0.3)] flex flex-col items-center">
+            <h1 id="praise-main" class="text-5xl md:text-7xl font-black font-display text-white mb-6 tracking-tight uppercase">ROCK ON!</h1>
+            <p id="praise-sub" class="text-sm md:text-base text-black bg-gothic-cyan px-4 py-2 font-bold font-mono uppercase tracking-widest rounded">Flawless execution.</p>
+        </div>
+    </div>
+
+    <!-- ================= LYRIC INSIGHTS OVERLAY ================= -->
+    <div id="lyric-insight-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div id="lyric-insight-card" class="bg-gothic-panel border border-[#222] rounded-lg p-8 lg:p-12 max-w-2xl w-full shadow-[0_0_40px_rgba(0,243,255,0.15)] transform scale-95 transition-transform duration-300 relative">
+            <button onclick="closeLyricInsight()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors bg-[#111] border border-[#222] w-10 h-10 rounded flex items-center justify-center font-mono text-sm hover:bg-gothic-red hover:border-gothic-red">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="mb-4"><span class="px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest text-black bg-gothic-cyan font-mono">Insight</span></div>
+            <h2 id="insight-title" class="text-3xl font-black font-display text-white mb-4 uppercase">Title</h2>
+            <p id="insight-explanation" class="text-base text-gray-300 leading-relaxed mb-8 border-l-4 border-gothic-cyan pl-4 bg-[#050505] py-3 pr-3 rounded-r font-sans">Exp</p>
+            <div class="bg-[#111] p-6 rounded border border-[#222]">
+                <p id="insight-question" class="text-base font-bold text-gothic-cyan mb-4 font-mono">> Question?</p>
+                <div id="insight-options" class="flex flex-col gap-3"></div>
+                <div id="insight-feedback" class="hidden mt-6 text-center text-emerald-500 font-black text-lg animate-pulse font-display uppercase tracking-widest">Accepted! 🤘</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let isPlaying = true;
+
+        function init() { updateUI(); }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                slides[currentSlide].classList.remove('active');
+                currentSlide++;
+                slides[currentSlide].classList.add('active');
+                updateUI();
+                if(currentSlide === totalSlides - 1) shootConfetti();
+                scrollToTop();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                slides[currentSlide].classList.remove('active');
+                currentSlide--;
+                slides[currentSlide].classList.add('active');
+                updateUI();
+                scrollToTop();
+            }
+        }
+
+        function goToSlide(index) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = index;
+            slides[currentSlide].classList.add('active');
+            updateUI();
+            scrollToTop();
+        }
+
+        function scrollToTop() {
+            const screen = document.getElementById('slides-container');
+            if(screen) screen.scrollTop = 0;
+        }
+
+        function updateUI() {
+            document.getElementById('btn-prev').disabled = currentSlide === 0;
+            document.getElementById('btn-next').disabled = currentSlide === totalSlides - 1;
+            document.getElementById('lcd-text').innerText = `TRK ${(currentSlide + 1).toString().padStart(2, '0')}`;
+            
+            const progress = totalSlides > 1 ? (currentSlide / (totalSlides - 1)) * 100 : 0;
+            document.getElementById('lcd-progress').style.width = `${progress}%`;
+            
+            const totalSecs = 237; // 3:57 Bring Me To Life
+            const curSecs = Math.floor((progress / 100) * totalSecs);
+            document.getElementById('lcd-time').innerText = `${Math.floor(curSecs/60)}:${(curSecs%60).toString().padStart(2,'0')}`;
+        }
+
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+            document.getElementById('icon-play').classList.toggle('hidden', isPlaying);
+            document.getElementById('icon-pause').classList.toggle('hidden', !isPlaying);
+            const vinyl = document.getElementById('vinyl-record');
+            if(vinyl) vinyl.classList.toggle('vinyl-paused', !isPlaying);
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e=>console.log(e));
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+
+        function toggleWhiteboard(forceState) {
+            const b = document.getElementById('whiteboardPanel');
+            if (forceState === false) b.classList.add('-translate-x-full');
+            else b.classList.toggle('-translate-x-full');
+        }
+
+        function toggleDictSidebar(forceState) {
+            const p = document.getElementById('dictPanel');
+            if (forceState === false) p.classList.add('translate-x-full');
+            else if (forceState === true) p.classList.remove('translate-x-full');
+            else p.classList.toggle('translate-x-full');
+        }
+
+        // Smart Dict API
+        document.addEventListener('dblclick', async (e) => {
+            if(e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            const sel = window.getSelection().toString().trim();
+            if(sel && /^[A-Za-z]+$/.test(sel)) fetchDict(sel.toLowerCase());
+        });
+
+        async function fetchDict(word) {
+            if(!word) return;
+            toggleDictSidebar(true);
+            const content = document.getElementById('dict-content');
+            content.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gothic-cyan"><i class="fa-solid fa-spinner fa-spin text-3xl mb-4"></i><p class="font-mono text-xs">Searching Database...</p></div>`;
+            try {
+                const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+                const data = await res.json();
+                if(data.title) {
+                    content.innerHTML = `<div class="mt-6 text-center"><h3 class="text-2xl font-black text-white font-display uppercase">${word}</h3><p class="text-gray-500 mt-2 font-mono text-xs">> Not found in memory.</p></div><input type="text" class="mt-4 bg-[#000] border border-[#333] rounded px-3 py-2 w-full outline-none text-white focus:border-gothic-cyan font-mono text-xs" placeholder="> Search another..." onkeypress="if(event.key === 'Enter') fetchDict(this.value)">`;
+                    return;
+                }
+                const entry = data[0];
+                const def = entry.meanings[0].definitions[0].definition;
+                content.innerHTML = `
+                    <div class="mt-4">
+                        <h3 class="text-2xl font-black text-gothic-cyan uppercase font-display">${entry.word}</h3>
+                        <p class="text-gray-500 mt-1 font-mono text-xs">> ${entry.meanings[0].partOfSpeech}</p>
+                        <div class="mt-4 p-3 bg-[#000] rounded border border-[#222]"><p class="text-white text-sm leading-relaxed font-sans">${def}</p></div>
+                    </div>
+                    <input type="text" class="mt-6 bg-[#000] border border-[#333] rounded px-3 py-2 w-full outline-none text-white focus:border-gothic-cyan font-mono text-xs" placeholder="> Search another..." onkeypress="if(event.key === 'Enter') fetchDict(this.value)">
+                `;
+            } catch(err) { content.innerHTML = `<p class="text-gothic-red mt-6 text-center font-mono text-xs">> Error fetching data.</p>`; }
+        }
+
+        // MCQ
+        function selectMCQ(btn, type, hubId) {
+            const group = btn.closest('.options-group');
+            group.querySelectorAll('.mcq-btn').forEach(b => { b.classList.remove('border-l-gothic-cyan', 'bg-[rgba(0,243,255,0.05)]'); });
+            
+            if(type === 'correct' || type === 'any') { 
+                btn.classList.add('border-l-gothic-cyan', 'bg-[rgba(0,243,255,0.05)]'); 
+                if(hubId) document.getElementById(hubId).classList.remove('hidden'); 
+                shootConfetti(); 
+            }
+            else { 
+                btn.classList.add('shake', 'border-l-gothic-red'); 
+                updateECG(true);
+                setTimeout(() => btn.classList.remove('shake', 'border-l-gothic-red'), 400); 
+            }
+        }
+
+        // Shard Cards (Vocab)
+        function revealShard(el, english, def, q, stageId, color = '#00f3ff') {
+            if(!el.classList.contains('revealed')) {
+                el.classList.add('revealed');
+                el.querySelector('.shard-text').innerText = english.toUpperCase();
+                el.querySelector('.shard-text').style.color = color;
+                el.querySelector('.shard-status').innerText = '[DECODED]';
+            }
+            const infoPanel = document.getElementById('shard-info-' + stageId);
+            if(infoPanel) {
+                infoPanel.classList.remove('hidden');
+                document.getElementById('s-title-' + stageId).innerText = english;
+                document.getElementById('s-title-' + stageId).style.color = color;
+                document.getElementById('s-def-' + stageId).innerText = def;
+                document.getElementById('s-q-' + stageId).innerText = q;
+            }
+        }
+
+        // Tuner (Grammar Mixer)
+        let machineActive = false;
+        function toggleMachine() {
+            machineActive = !machineActive;
+            const track = document.querySelector('.toggle-switch');
+            const txtNormal = document.getElementById('text-reality');
+            const txtPower = document.getElementById('text-imagination');
+            const ecg = document.getElementById('main-ecg');
+
+            if(machineActive) {
+                track.classList.add('active');
+                txtNormal.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
+                txtNormal.classList.remove('translate-y-0');
+                txtPower.classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
+                
+                ecg.classList.remove('ecg-active');
+                ecg.classList.add('ecg-danger');
+                shootConfetti();
+            } else {
+                track.classList.remove('active');
+                txtNormal.classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
+                txtNormal.classList.add('translate-y-0');
+                txtPower.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
+                
+                ecg.classList.remove('ecg-danger');
+                ecg.classList.add('ecg-active');
+            }
+        }
+
+        // Catch the Bug
+        function fixBug() {
+            const w = document.getElementById('bug-word');
+            w.classList.remove('border-gothic-red', 'text-gothic-red', 'hover:bg-gothic-red', 'hover:text-white');
+            w.classList.add('bg-white', 'text-black', 'border-transparent');
+            document.getElementById('bug-input-container').classList.remove('hidden');
+            document.getElementById('bug-input').focus();
+        }
+        function checkBug() {
+            const v = document.getElementById('bug-input').value.toLowerCase().trim();
+            if(v === 'save') {
+                document.getElementById('bug-input-container').classList.add('hidden');
+                const w = document.getElementById('bug-word');
+                w.innerText = 'SAVE'; w.className = 'text-gothic-cyan font-black border-b-2 border-gothic-cyan pb-1';
+                document.getElementById('bug-hub').classList.remove('hidden');
+                shootConfetti();
+            } else {
+                const i = document.getElementById('bug-input');
+                i.classList.add('shake', 'border-[#ef4444]');
+                updateECG(true);
+                setTimeout(() => i.classList.remove('shake', 'border-[#ef4444]'), 400);
+            }
+        }
+
+        // Broken Glass (Sentence Builder)
+        let activeB = 1; const expectedT = {1:"Wake", 2:"me", 3:"up", 4:"inside"};
+        function fillGlass(btn, word) {
+            if(activeB > 4) return;
+            if(expectedT[activeB].toLowerCase() === word.toLowerCase()) {
+                const b = document.getElementById(`t-blank${activeB}`);
+                if(b) { b.innerText = word.toUpperCase(); b.classList.add('filled'); }
+                btn.classList.add('used'); activeB++;
+                if(activeB > 4) { document.getElementById('glass-hub').classList.remove('hidden'); shootConfetti(); }
+            } else { 
+                btn.classList.add('shake', 'border-gothic-red'); 
+                updateECG(true);
+                setTimeout(()=>btn.classList.remove('shake', 'border-gothic-red'),400); 
+            }
+        }
+        function returnGlass(n) {
+            const b = document.getElementById(`t-blank${n}`); 
+            if(!b) return;
+            const w = b.innerText; if(!w) return;
+            b.innerText = ""; b.classList.remove('filled'); 
+            document.querySelectorAll('.glass-piece').forEach(p => { if(p.innerText.toLowerCase() === w.toLowerCase()) p.classList.remove('used'); });
+            activeB = n; document.getElementById('glass-hub').classList.add('hidden');
+        }
+
+        // The Missing Pieces
+        let currentBlank = 1; const expectedMiss = {1:'wake', 2:'save', 3:'my'};
+        function fillMissingWord(btn, word) {
+            if(currentBlank > 3) return;
+            if(word === expectedMiss[currentBlank]) {
+                const b = document.getElementById(`blank-${currentBlank}`);
+                b.innerText = word.toUpperCase();
+                b.classList.replace('text-gothic-gray', 'text-gothic-cyan');
+                b.classList.replace('border-gothic-gray', 'border-gothic-cyan');
+                btn.classList.add('opacity-20', 'pointer-events-none');
+                currentBlank++;
+                if(currentBlank > 3) { document.getElementById('missing-hub').classList.remove('hidden'); shootConfetti(); }
+            } else { 
+                btn.classList.add('shake', 'border-gothic-red', 'text-gothic-red'); 
+                updateECG(true);
+                setTimeout(()=>btn.classList.remove('shake', 'border-gothic-red', 'text-gothic-red'),400); 
+            }
+        }
+
+        // Bamboozle Rapid Fire
+        function rqCheck(n, c) {
+            if(c) { document.getElementById('rq'+n).classList.add('hidden'); if(n===1) document.getElementById('rq2').classList.remove('hidden'); else { document.getElementById('rq-hub').classList.remove('hidden'); shootConfetti(); } }
+            else { 
+                document.getElementById('rq'+n).classList.add('shake', 'border-gothic-red'); 
+                updateECG(true);
+                setTimeout(()=>document.getElementById('rq'+n).classList.remove('shake', 'border-gothic-red'),400); 
+            }
+        }
+
+        // Odd One Out
+        function oddCheck(btn, isOdd) {
+            if(isOdd) {
+                btn.classList.add('border-gothic-cyan', 'text-gothic-cyan', 'bg-[rgba(0,243,255,0.05)]');
+                document.getElementById('odd-hub').classList.remove('hidden');
+                shootConfetti();
+            } else {
+                btn.classList.add('shake', 'border-gothic-red', 'text-gothic-red'); 
+                updateECG(true);
+                setTimeout(()=>btn.classList.remove('shake', 'border-gothic-red', 'text-gothic-red'),400);
+            }
+        }
+
+        // Song Review
+        function rateSong(btn, stars) {
+            const allStars = document.querySelectorAll('.star-btn');
+            allStars.forEach((star, index) => {
+                if(index < stars) {
+                    star.classList.remove('opacity-30', 'grayscale');
+                    star.classList.add('opacity-100', 'drop-shadow-[0_0_15px_rgba(0,243,255,0.8)]');
+                } else {
+                    star.classList.add('opacity-30', 'grayscale');
+                    star.classList.remove('opacity-100', 'drop-shadow-[0_0_15px_rgba(0,243,255,0.8)]');
+                }
+            });
+            document.getElementById('star-count').innerText = stars;
+            document.getElementById('review-hub').classList.remove('hidden');
+            shootConfetti();
+        }
+
+        // Scream Room (Speaking Studio)
+        function startRecord(id) {
+            const btn = document.getElementById('record-btn' + id);
+            const txt = document.getElementById('record-text' + id);
+            const panel = document.getElementById('record-panel' + id);
+            
+            if(btn && txt) {
+                btn.classList.add('animate-pulse');
+                btn.classList.replace('text-gothic-red', 'text-white');
+                btn.classList.replace('bg-gothic-black', 'bg-gothic-red');
+                txt.innerText = "> DETECTING AUDIO... (WAIT 3S)";
+                txt.classList.replace('text-gray-400', 'text-gothic-red');
+
+                setTimeout(() => {
+                    btn.classList.remove('animate-pulse', 'bg-gothic-red', 'border-gothic-red');
+                    btn.classList.add('bg-gothic-cyan', 'border-gothic-cyan', 'text-black', 'shadow-cyan-glow');
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    
+                    txt.innerText = "> COMMAND RECEIVED!";
+                    txt.classList.replace('text-gothic-red', 'text-gothic-cyan');
+                    
+                    if(panel) {
+                        panel.classList.replace('border-gothic-gray', 'border-gothic-cyan');
+                        panel.classList.replace('border-dashed', 'border-solid');
+                    }
+                    shootConfetti();
+                }, 3000);
+            }
+        }
+
+        // Lyric Insights
+        function openLyricInsight(k) {
+            const data = {
+                'see': {t:'See', e:'To look with your eyes.', q:'Do you see the problem?', o:['Yes, I do.', 'No.']},
+                'without': {t:'Without', e:'Not having something.', q:'Can you live without your phone?', o:['No, impossible.', 'Yes, I can.']},
+                'wake': {t:'Wake me up', e:'Command: Stop me from sleeping.', q:'What wakes you up?', o:['My alarm.', 'Coffee.']},
+                'save': {t:'Save me', e:'Command: Rescue me.', q:'Who saves people?', o:['Superman.', 'Doctors.']},
+                'call': {t:'Call', e:'Command: Say my name loudly.', q:'Do you like when people call you?', o:['Yes.', 'No, text me.']}
+            }[k];
+            if(!data) return;
+            document.getElementById('insight-title').innerText=data.t; document.getElementById('insight-explanation').innerText=data.e; document.getElementById('insight-question').innerText=data.q;
+            const con = document.getElementById('insight-options'); con.innerHTML='';
+            data.o.forEach(o => { const b=document.createElement('button'); b.className='bg-[#030305] p-3 md:p-4 rounded border border-gothic-gray text-left font-bold text-sm md:text-base hover:bg-gothic-cyan hover:text-black transition-colors text-gray-300 font-sans'; b.innerText=o; b.onclick=()=>document.getElementById('insight-feedback').classList.remove('hidden'); con.appendChild(b); });
+            document.getElementById('insight-feedback').classList.add('hidden');
+            const overlay = document.getElementById('lyric-insight-overlay');
+            const card = document.getElementById('lyric-insight-card');
+            overlay.classList.remove('opacity-0','pointer-events-none');
+            setTimeout(() => card.classList.replace('scale-95', 'scale-100'), 50);
+        }
+
+        function closeLyricInsight() { 
+            const overlay = document.getElementById('lyric-insight-overlay');
+            const card = document.getElementById('lyric-insight-card');
+            card.classList.replace('scale-100', 'scale-95');
+            setTimeout(() => overlay.classList.add('opacity-0', 'pointer-events-none'), 200);
+        }
+
+        // Praise Overlay
+        function triggerPraise(main, sub) {
+            toggleWhiteboard(false);
+            const overlay = document.getElementById('praise-overlay');
+            const card = document.getElementById('praise-card');
+            document.getElementById('praise-main').innerText = main;
+            document.getElementById('praise-sub').innerText = sub;
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => card.classList.replace('scale-50', 'scale-100'), 50);
+            shootConfetti();
+            setTimeout(() => { card.classList.replace('scale-100', 'scale-50'); overlay.classList.add('opacity-0', 'pointer-events-none'); }, 2500); 
+        }
+
+        function shootConfetti() {
+            const colors = ['#00f3ff', '#334155', '#f8fafc'];
+            for(let i=0; i<60; i++) {
+                const c = document.createElement('div'); c.className='confetti rounded-sm';
+                c.style.left = Math.random()*100+'vw'; c.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+                c.style.animation = `fall ${Math.random()*3+2}s linear forwards`;
+                document.body.appendChild(c); setTimeout(()=>c.remove(), 4000);
+            }
+        }
+
+        function updateECG(isDanger) {
+            const ecg = document.getElementById('main-ecg');
+            if(ecg) {
+                if(isDanger) {
+                    ecg.classList.remove('ecg-active');
+                    ecg.classList.add('ecg-danger');
+                    setTimeout(() => {
+                        ecg.classList.remove('ecg-danger');
+                        ecg.classList.add('ecg-active');
+                    }, 1000);
+                }
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
